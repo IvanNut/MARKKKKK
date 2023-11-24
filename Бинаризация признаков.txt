@@ -1,0 +1,33 @@
+from sklearn.preprocessing import KBinsDiscretizer
+
+x_plot = np.linspace(0, 1, 10000)
+
+X = np.random.uniform(0, 1, size=30)
+y = np.cos(1.5 * np.pi * X) + np.random.normal(scale=0.1, size=X.shape)
+
+fig, axs = plt.subplots(figsize=(16, 4), ncols=2)
+
+regr = LinearRegression()
+regr.fit(X[:, np.newaxis], y)
+y_pred_regr = regr.predict(x_plot[:, np.newaxis])
+axs[0].scatter(X[:, np.newaxis], y, label="Data")
+axs[0].plot(x_plot, y_pred_regr, label="Predictions")
+axs[0].legend()
+axs[0].set_title("Linear regression on original feature")
+axs[0].set_xlabel("$X$")
+axs[0].set_ylabel("$y$")
+axs[0].set_ylim(-2, 2)
+
+binner = KBinsDiscretizer(n_bins=5, strategy='quantile')
+pipeline = Pipeline(steps=[
+    ('binning', binner),
+    ('regression', LinearRegression())
+])
+pipeline.fit(X[:, np.newaxis], y)
+y_pred_binned = pipeline.predict(x_plot[:, np.newaxis])
+axs[1].scatter(X[:, np.newaxis], y, label="Data")
+axs[1].plot(x_plot, y_pred_binned, label="Predictions")
+axs[1].set_title("Linear regression on binned feature")
+axs[1].set_xlabel("$X$")
+axs[1].set_ylabel("$y$")
+axs[1].set_ylim(-2, 2)

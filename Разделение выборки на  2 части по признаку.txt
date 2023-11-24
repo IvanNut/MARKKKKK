@@ -1,0 +1,39 @@
+threshold = 5
+mask = (X_train.OverallQual <= threshold)
+X_train_1 = X_train[mask]
+y_train_1 = y_train[mask]
+X_train_2 = X_train[~mask]
+y_train_2 = y_train[~mask]
+
+column_transformer1 = ColumnTransformer([
+    ('ohe', OneHotEncoder(handle_unknown="ignore"), categorical),
+    ('scaling', StandardScaler(), numeric_features)
+])
+
+pipeline1 = Pipeline(steps=[
+    ('ohe_and_scaling', column_transformer1),
+    ('regression', Ridge())
+])
+
+column_transformer2 = ColumnTransformer([
+    ('ohe', OneHotEncoder(handle_unknown="ignore"), categorical),
+    ('scaling', StandardScaler(), numeric_features)
+])
+
+pipeline2 = Pipeline(steps=[
+    ('ohe_and_scaling', column_transformer2),
+    ('regression', Ridge())
+])
+
+
+
+model1 = pipeline1.fit(X_train_1, y_train_1)
+model2 = pipeline2.fit(X_train_2, y_train_2)
+
+y_pred_1 = model1.predict(X_test)
+y_pred_2 = model2.predict(X_test)
+mask_test = (X_test.OverallQual <= threshold)
+y_pred = y_pred_1.copy()
+y_pred[~mask_test] = y_pred_2[~mask_test]
+
+print("Test RMSE = %.4f" % mean_squared_error(y_test, y_pred, squared=False))

@@ -1,0 +1,25 @@
+X = np.random.exponential(1, size=30)
+y = np.exp(X) + np.random.normal(scale=0.1, size=X.shape)
+
+x_plot = np.linspace(np.min(X), np.max(X), 10000)
+
+fig, axs = plt.subplots(figsize=(16, 4), ncols=2)
+
+regr = LinearRegression()
+regr.fit(X[:, np.newaxis], y)
+y_pred_regr = regr.predict(x_plot[:, np.newaxis])
+axs[0].scatter(X[:, np.newaxis], y, label="Data")
+axs[0].plot(x_plot, y_pred_regr, label="Predictions")
+axs[0].legend()
+axs[0].set_title("Linear regression on original target")
+axs[0].set_xlabel("$X$")
+axs[0].set_ylabel("$y$")
+
+y_log = np.log(y)
+regr.fit(X[:, np.newaxis], y_log)
+y_pred_log = np.exp(regr.predict(x_plot[:, np.newaxis]))
+axs[1].scatter(X[:, np.newaxis], y, label="Data")
+axs[1].plot(x_plot, y_pred_log, label="Predictions")
+axs[1].set_title("Linear regression on log target")
+axs[1].set_xlabel("$X$")
+axs[1].set_ylabel("$y$")
